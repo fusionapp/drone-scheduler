@@ -1,0 +1,46 @@
+name: drone-scheduler
+version: '0.1.0.0'
+category: Web
+author: Tristan Seligmann
+maintainer: dev@fusionapp.com
+copyright: © 2017 Crownmill Trading
+license: BSD3
+github: fusionapp/drone-scheduler
+extra-source-files:
+- README.md
+default-extensions:
+- OverloadedStrings
+- NoImplicitPrelude
+dependencies:
+- protolude >=0.1.6 && <0.2
+library:
+  source-dirs: src
+  ghc-options: -Wall
+  exposed-modules:
+  - Lib
+  dependencies:
+  - base >=4.7 && <5
+executables:
+  drone-scheduler-exe:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - drone-scheduler
+tests:
+  drone-scheduler-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -Wall
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - drone-scheduler
