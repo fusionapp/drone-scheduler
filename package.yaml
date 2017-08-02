@@ -3,44 +3,63 @@ version: '0.1.0.0'
 category: Web
 author: Tristan Seligmann
 maintainer: dev@fusionapp.com
-copyright: © 2017 Crownmill Trading
-license: BSD3
+copyright: © 2017 Crownmill Trading (Pty) Ltd
+license: MIT
 github: fusionapp/drone-scheduler
 extra-source-files:
-- README.md
+  - README.md
 default-extensions:
-- OverloadedStrings
-- NoImplicitPrelude
+  - ConstrainedClassMethods
+  - DataKinds
+  - DeriveGeneric
+  - FlexibleContexts
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - PackageImports
+  - RecordWildCards
+  - TypeFamilies
+  - TypeOperators
 dependencies:
-- protolude >=0.1.6 && <0.2
+  - protolude >=0.1.6 && <0.2
 library:
   source-dirs: src
   ghc-options: -Wall
   exposed-modules:
-  - Lib
+    - Lib
   dependencies:
-  - base >=4.7 && <5
+    - base >=4.7 && <5
+    - aeson
+    - cron
+    - http-api-data
+    - lens
+    - network-uri
+    - optparse-applicative
+    - servant
+    - servant-client
+    - time
+    - wreq
+    - yaml
 executables:
-  drone-scheduler-exe:
+  drone-scheduler:
     main: Main.hs
     source-dirs: app
     ghc-options:
-    - -Wall
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -Wall
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - base
-    - drone-scheduler
+      - base
+      - drone-scheduler
 tests:
   drone-scheduler-test:
     main: Spec.hs
     source-dirs: test
     ghc-options:
-    - -Wall
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -Wall
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - base
-    - drone-scheduler
+      - base
+      - drone-scheduler

@@ -1,20 +1,68 @@
 {-|
 Module      : Lib
 Description : Lib's main module
-
-This is a haddock comment describing your library
-For more information on how to write Haddock comments check the user guide:
-<https://www.haskell.org/haddock/doc/html/index.html>
 -}
 module Lib
-    ( someFunc
+    ( appMain
     ) where
 
+import Control.Monad.Fail (MonadFail(fail))
+import Data.Yaml (decodeFileEither, prettyPrintParseException)
+import Network.URI (URI, parseAbsoluteURI)
+import Options.Applicative
+  ( Parser, ParserInfo, ReadM, strOption, long, metavar, help, execParser, info
+  , helper, fullDesc, progDesc, header, eitherReader, option)
+import System.Cron (Job(Job), Schedule, execSchedule)
+
+import Lib.Config (Config(..), BuildSchedule(..))
 import Lib.Prelude
 
--- | Prints someFunc
+url :: ReadM URI
+url = eitherReader $ maybeToRight "invalid URL" . parseAbsoluteURI
+
+configParser :: Parser Config
+configParser = Config
+  <$> option url
+  ( long "server"
+    <> metavar "URL"
+    <> help "Drone API base URL"
+  )
+  <*> strOption
+  ( long "token"
+    <> metavar "TOKEN"
+    <> help "Drone API token"
+  )
+  <*> strOption
+  ( long "schedules"
+    <> metavar "FILE"
+    <> help "File with build schedules"
+  )
+
+opts :: ParserInfo Config
+opts = info (configParser <**> helper)
+  ( fullDesc
+  <> progDesc "Schedule builds for Drone"
+  <> header "drone-scheduler - a scheduler for Drone builds"
+  )
+
+addJob :: Config -> BuildSchedule -> Schedule ()
+addJob config schedule = modify (Job (scheduleSchedule schedule) job:)
+  where job = triggerBuild config schedule
+
+triggerBuild :: Config -> BuildSchedule -> IO ()
+triggerBuild Config{..} BuildSchedule{..} = undefined
+  -- withDrone configServer configAuthToken $
+  -- \ctx -> print =<< request ctx (lastBuild (Repository scheduleUser scheduleRepo) scheduleBranch)
+
+-- | Main function for the scheduler
 --
--- >>> someFunc 10
--- someFunc
-someFunc :: IO ()
-someFunc = putStrLn ("someFunc" :: Text)
+appMain :: IO ()
+appMain = do
+  config <- execParser opts
+  print config
+  schedules <- either (fail . prettyPrintParseException) return =<<
+    decodeFileEither (configSchedules config)
+  print (schedules :: [BuildSchedule])
+  --void $ execSchedule $ for_ schedules (addJob config)
+  --forever $ threadDelay 10000000
+  for_ schedules (triggerBuild config)
