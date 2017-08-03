@@ -1,0 +1,75 @@
+pipeline:
+  restore_cache:
+    image: appleboy/drone-sftp-cache
+    server: sftp-cache.drone7.non-production.fusionapp.com
+    port: 45945
+    username: drone-cache
+    path: /drone-cache
+    restore: true
+    ignore_branch: true
+    mount:
+      - /drone/stack
+    secrets:
+      - sftp_cache_password
+  build:
+    image: fusionapp/debian-stack
+    pull: true
+    environment:
+      - STACK_ROOT=/drone/stack
+    commands:
+      - stack setup
+      - stack build --test
+      - mkdir -p $PWD/dist
+      - stack --local-bin-path $PWD/dist build --copy-bins
+  rebuild_cache:
+    image: appleboy/drone-sftp-cache
+    server: sftp-cache.drone7.non-production.fusionapp.com
+    port: 45945
+    username: drone-cache
+    path: /drone-cache
+    rebuild: true
+    ignore_branch: true
+    mount:
+      - /drone/stack
+    when:
+      event: push
+      # branch: master
+    secrets:
+      - sftp_cache_password
+  publish:
+    image: plugins/docker
+    repo: eu.gcr.io/fusion-168903/drone-scheduler
+    tags:
+      - ${DRONE_BRANCH}
+      - git-${DRONE_COMMIT_SHA}
+    registry: eu.gcr.io
+    mirror: https://eu-mirror.gcr.io
+    username: _json_key
+    when:
+      event: push
+    secrets:
+      - docker_password
+  deploy:
+    image: peloton/drone-rancher
+    url: https://rancher.fusionapp.com
+    service: drone-scheduler/drone-scheduler
+    docker_image: eu.gcr.io/fusion-168903/drone-scheduler:git-${DRONE_COMMIT_SHA}
+    start_first: false
+    confirm: true
+    timeout: 120
+    when:
+      event: push
+      branch: master
+    secrets:
+      - rancher_access_key
+      - rancher_secret_key
+  slack:
+    image: plugins/slack
+    secrets:
+      - slack_webhook
+    when:
+      status:
+        - success
+        - failure
+# branches:
+#   - master
