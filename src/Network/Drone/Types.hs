@@ -1,6 +1,6 @@
 module Network.Drone.Types
   ( BuildInfo(..)
-  , BuildID(..)
+  , BuildNumber(..)
   ) where
 
 import Data.Aeson (FromJSON(..), genericParseJSON, defaultOptions)
@@ -49,13 +49,13 @@ instance FromJSON BuildInfo where
   parseJSON = genericParseJSON defaultOptions
     { fieldLabelModifier = modifier '_' }
 
-data BuildID = BuildLatest | Build Integer
+data BuildNumber = BuildLatest | Build Integer
   deriving (Show, Eq)
 
-instance FromHttpApiData BuildID where
+instance FromHttpApiData BuildNumber where
   parseUrlPiece "latest" = Right BuildLatest
   parseUrlPiece id = Build <$> parseUrlPiece id
 
-instance ToHttpApiData BuildID where
+instance ToHttpApiData BuildNumber where
   toUrlPiece BuildLatest = "latest"
   toUrlPiece (Build id) = toUrlPiece id

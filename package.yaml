@@ -13,6 +13,7 @@ default-extensions:
   - DataKinds
   - DeriveGeneric
   - FlexibleContexts
+  - NamedFieldPuns
   - NoImplicitPrelude
   - OverloadedStrings
   - PackageImports
@@ -31,13 +32,14 @@ library:
     - aeson
     - cron
     - http-api-data
+    - http-client
+    - http-client-tls
     - lens
     - network-uri
     - optparse-applicative
     - servant
     - servant-client
     - time
-    - wreq
     - yaml
 executables:
   drone-scheduler:
