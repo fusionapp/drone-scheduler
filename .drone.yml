@@ -11,6 +11,10 @@ pipeline:
       - /drone/stack
     secrets:
       - sftp_cache_password
+    when:
+      event:
+        - push
+        - pull_request
   build:
     image: fusionapp/debian-stack
     pull: true
@@ -21,6 +25,10 @@ pipeline:
       - stack build --test
       - mkdir -p $PWD/dist
       - stack --local-bin-path $PWD/dist build --copy-bins
+    when:
+      event:
+        - push
+        - pull_request
   rebuild_cache:
     image: appleboy/drone-sftp-cache
     server: sftp-cache.drone7.non-production.fusionapp.com
