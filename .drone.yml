@@ -41,7 +41,7 @@ pipeline:
       - /drone/stack
     when:
       event: push
-      # branch: master
+      branch: master
     secrets:
       - sftp_cache_password
   publish:
@@ -79,5 +79,5 @@ pipeline:
       status:
         - success
         - failure
-# branches:
-#   - master
+branches:
+  - master
