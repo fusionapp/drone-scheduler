@@ -60,7 +60,7 @@ pipeline:
   deploy:
     image: peloton/drone-rancher
     url: https://rancher.fusionapp.com
-    service: drone-scheduler/drone-scheduler
+    service: Drone7/drone-scheduler
     docker_image: eu.gcr.io/fusion-168903/drone-scheduler:git-${DRONE_COMMIT_SHA}
     start_first: false
     confirm: true
