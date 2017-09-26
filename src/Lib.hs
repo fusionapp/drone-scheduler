@@ -77,7 +77,8 @@ baseUrlFromURI uri = BaseUrl
           "" -> case scheme of
             Http -> 80
             Https -> 443
-          p -> unsafeFromJust (readMaybe p)
+          (':':p) -> unsafeFromJust (readMaybe p)
+          _ -> panic "Invalid port"
 
 runDrone :: App -> ClientM a -> IO a
 runDrone app a = do
